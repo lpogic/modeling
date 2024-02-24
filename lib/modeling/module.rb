@@ -13,15 +13,13 @@ module Modeling
       end
       initialize_context.new(*arguments).instance_exec &initialize if initialize
     end
-    fields.filter{|f| f.setter? }.each do |f|
-      attr_writer f.name
-    end
-    fields.filter{|f| f.getter? }.each do |f|
-      attr_reader f.name
-    end
-    fields.filter{|f| f.tester? }.each do |f|
-      define_method "#{f.name}?" do
-        !!instance_variable_get(f.attribute_name)
+    fields.each do |f|
+      attr_writer f.name if f.setter?
+      attr_reader f.name if f.getter?
+      if f.tester?
+        define_method "#{f.name}?" do
+          !!instance_variable_get(f.attribute_name)
+        end
       end
     end
   end
