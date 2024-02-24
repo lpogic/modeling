@@ -1,0 +1,34 @@
+#{ gemspec.name }
+===
+
+#{ gemspec.summary }
+
+Installation
+---
+```
+gem install #{ gemspec.name }
+```
+
+Usage
+---
+### 1. Basic use case
+#[sample/a0.rb]
+
+### 2. ::model with initialize body
+#[sample/a1.rb]
+
+### 3. Don't enable Modeling globally
+#[sample/a2.rb]
+
+### 4. String ::model argument
+#[sample/a3.rb]
+
+### 5. String ::model argument with accessors
+#[sample/a4.rb]
+
+### 6. Keywords and tester methods
+#[sample/a5.rb]
+
+Authors
+---
+#{ gemspec.authors.zip(Array(gemspec.email)).map{ "- #{_1} (#{_2})" }.join("\n") }
