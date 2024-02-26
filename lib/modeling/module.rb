@@ -1,26 +1,30 @@
-require_relative 'model_argument'
+require_relative 'model_field'
 
 module Modeling
 
-  def model *fields, &initialize
-    fields.map!{ ModelArgument.parse _1 }
-    initialize_context = Struct.new(nil, *fields.map(&:name))
-    define_method :initialize do |*a, **na|
-      arguments = fields.zip(a).map do |f, arg|
-        value = (f.keyword? ? na[f.name] : nil) || arg
-        instance_variable_set f.attribute_name, value if f.attribute?
-        value
-      end
-      initialize_context.new(*arguments).instance_exec &initialize if initialize
-    end
-    fields.each do |f|
+  def model *fields, &initializer
+    model_fields = fields.map{ ModelField.parse _1 }
+    define_initialize model_fields, &initializer
+    model_fields.each do |f|
       attr_writer f.name if f.setter?
       attr_reader f.name if f.getter?
-      if f.tester?
-        define_method "#{f.name}?" do
-          !!instance_variable_get(f.attribute_name)
-        end
+    end
+  end
+  
+  private
+
+  def self.model_arguments fields, *a, **na
+    fields.zip(a).map{|f, arg| [f.name, na.key?(f.name) ? na[f.name] : arg]}.to_h
+  end
+
+  def define_initialize fields, &initializer
+    define_method :initialize do |*a, **na, &b|
+      model_arguments = Modeling.model_arguments fields, *a, **na
+      super *(a[model_arguments.size..] || []), **na.except(*model_arguments.keys), &b
+      fields.each do |f|
+        instance_variable_set f.attribute_name, model_arguments[f.name] if f.assign?
       end
+      instance_exec **model_arguments, &initializer if initializer
     end
   end
 

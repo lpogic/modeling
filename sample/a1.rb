@@ -2,14 +2,15 @@ require 'modeling'
 
 class Foo
 
-  model :@a, :b, :@c do
-    p a  # => 1
-    p b  # => 2
-    p c  # => 3
+  model :@a, :b do |**na|
+    p na[:a]
+    p na[:b]
   end
 
 end
 
-foo = Foo.new 1, 2, 3 
-p foo  # => #<Foo:0x... @a=1, @c=3>
-p foo.methods  # => [:a, :c, :a=, :c=, ...
+foo = Foo.new 1, 2 
+# => 1
+# => 2
+p foo  # => #<Foo:0x... @a=1>
+p foo.methods  # => [:a=, :a, ...

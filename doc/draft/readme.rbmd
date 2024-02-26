@@ -14,20 +14,26 @@ Usage
 ### 1. Basic use case
 #[sample/a0.rb]
 
-### 2. ::model with initialize body
+### 2. ::model with block
 #[sample/a1.rb]
 
 ### 3. Don't enable Modeling globally
 #[sample/a2.rb]
 
-### 4. String ::model argument
+### 4. Symbol encoded model fields
 #[sample/a3.rb]
 
-### 5. String ::model argument with accessors
+### 5. String encoded model fields
 #[sample/a4.rb]
 
-### 6. Keywords and tester methods
-#[sample/a5.rb]
+### 6. Mixed keyword and positional arguments
+#[sample/b1.rb]
+
+### 7. Inheritance
+#[sample/b2.rb]
+
+### 8. Modeled inheritance
+#[sample/b3.rb]
 
 Authors
 ---

@@ -2,15 +2,15 @@ require 'modeling'
 
 class Foo
 
-  model :@first, :@second, :third
-
+  model :@first, :@second
+  
 end
 
-# is a definition equal to this one:
+# ==
 
 class Foo
 
-  def initialize first, second, third
+  def initialize first, second
     @first = first
     @second = second
   end

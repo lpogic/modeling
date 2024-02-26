@@ -2,10 +2,20 @@ require 'modeling'
 
 class Foo
 
-  model :@a, "@b"
+  model :@a, :b, :c!, :d?
 
 end
 
-foo = Foo.new 1, 2
-p foo  # => #<Foo:0x... @a=1, @b=2>
-p foo.methods  # => [:a=, :a, ...
+foo = Foo.new 1, 2, 3, 4
+p foo  # => #<Foo:0x... @a=1, @d=4>
+p foo.methods  # => [:a=, :a, :c=, :c, ...
+
+
+#        | :_  | :_! | :_? | :@_ |  
+#        |_____|_____|_____|_____|
+# attr   |  0  |  0  |  1  |  1  |
+#        |_____|_____|_____|_____|
+# reader |  0  |  1  |  0  |  1  |
+#        |_____|_____|_____|_____|
+# writer |  0  |  1  |  0  |  1  |
+#        |_____|_____|_____|_____|
