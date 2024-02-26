@@ -1,4 +1,4 @@
-Welcome to the _procify_ documentation home page!
+Welcome to the _modeling_ documentation home page!
 ===
 
 Usage
