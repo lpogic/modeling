@@ -2,7 +2,7 @@ require 'modeling'
 
 class Foo
 
-  model :@a, :b
+  model :a, :b
 
 end
 
@@ -13,4 +13,4 @@ class Bar < Foo
 end
 
 bar = Bar.new 1
-p bar  # => #<Bar:0x... @a=1>
+p bar  # => #<Bar:0x... @a=1, @b=nil>

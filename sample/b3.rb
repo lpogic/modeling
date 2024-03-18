@@ -2,13 +2,13 @@ require 'modeling'
 
 class Foo
 
-  model :@a
+  model :a
 
 end
 
 class Bar < Foo
 
-  model :@b
+  model :b
 
 end
 

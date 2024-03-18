@@ -2,7 +2,7 @@ require 'modeling'
 
 class Foo
 
-  model :@a, :@b, :@c
+  model :a, :b, :c
 
 end
 

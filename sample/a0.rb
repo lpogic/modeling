@@ -2,11 +2,11 @@ require 'modeling'
 
 class Foo
 
-  model :@first, :@second
+  model :first, :second
   
 end
 
-# ==
+# above and below are identical definitions
 
 class Foo
 
