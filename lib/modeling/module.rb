@@ -41,11 +41,21 @@ module Modeling
     define_method :initialize do |*a, **na, &b|
       model_fields = initializer_class.model_fields
       model_arguments = Modeling.model_arguments model_fields, *a, **na
-      super(*(a[model_arguments.size..] || []), **na.except(*model_arguments.keys), &b)
+      super_call = proc do |*asc, **nasc, &bsc|
+        if asc.empty? && nasc.empty? && !bsc
+          super(*(a[model_arguments.size..] || []), **na.except(*model_arguments.keys), &b)
+        else
+          super(*asc, **nasc, &bsc)
+        end
+      end
       model_fields.each do |f|
         instance_variable_set f.attribute_name, model_arguments[f.name] if f.create_attr?
       end
-      instance_exec **model_arguments, &initializer if initializer
+      if initializer
+        instance_exec super_call, **model_arguments, &initializer
+      else
+        super_call.call
+      end
     end
   end
 

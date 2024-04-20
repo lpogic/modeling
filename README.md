@@ -177,6 +177,28 @@ rabar = Bar.new 1, 2
 p rabar  # => #<Bar:0x... @a=2, @b=1>
 ```
 
+### 9. super initializer call
+```RUBY
+require 'modeling'
+
+class Foo
+
+  model :a
+
+end
+
+class Bar < Foo
+
+  model :b do |super_proc|
+    super_proc.call a: @b
+  end
+
+end
+
+rabar = Bar.new 1
+p rabar  # => #<Bar:0x... @a=1, @b=1>
+```
+
 Authors
 ---
 - Łukasz Pomietło (oficjalnyadreslukasza@gmail.com)

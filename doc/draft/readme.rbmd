@@ -35,6 +35,9 @@ Usage
 ### 8. Modeled inheritance
 #[sample/b3.rb]
 
+### 9. super initializer call
+#[sample/b4.rb]
+
 Authors
 ---
 #{ gemspec.authors.zip(Array(gemspec.email)).map{ "- #{_1} (#{_2})" }.join("\n") }
