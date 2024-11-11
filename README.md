@@ -1,8 +1,7 @@
 modeling - A concise way to define the class shape
 ===
 
-  Enables writting class initializers and attribute accessors in one line. 
-  Struct class alternative. Keyword & positional arguments mixing. Optional initializer arguments filtering.
+    Simplify common class definition by encoding attributes with their access modes.
 
 
 Installation
@@ -20,7 +19,7 @@ require 'modeling'
 # with modeling:
 
 class Foo
-  model :first, :@r_second
+  model :first, :@ir_second
 end
 
 # without modeling:
@@ -49,7 +48,7 @@ class Foo
 end
 
 foo = Foo.new 1, 2 # => {:a=>1, :b=>2}
-p foo  # => #<Foo:0x... @a=1, @b=2>
+p foo  # => #<Foo:0x... @a=1>
 p foo.public_methods(false).sort  # => [:a, :a=]
 ```
 
@@ -73,25 +72,25 @@ require 'modeling'
 
 class Foo
 
-  model :a, :@_b, :@r_c, :@wrt_d, :@it_e
+  model :a, :@i_b, :@ir_c, :@wrt_d, :@it_e
 
 end
 
 foo = Foo.new 1, 2, 3, 4, 5
-p foo  # => #<Foo:0x... @a=1, @b=2, @c=3, @d=4>
+p foo  # => #<Foo:0x... @a=1, @b=2, @c=3, @e=5>
 p foo.public_methods(false).sort  # => [:a, :a=, :c, :d, :d=, :d?, :e?]
 
 # @r - reader
 # @w - writer
 # @t - tester
-# @i - initializer variable (not attribute)
+# @i - instance variable
 ```
 
 ### 5. Alternative ways of modeling
 ```RUBY
 require 'modeling'
 
-def Bar
+class Bar
   model :@ti_D
 end
 
@@ -100,7 +99,7 @@ class Foo
 end
 
 foo = Foo.new 1, 2, 3, 4
-p foo  # => #<Foo:0x... @a=1, @b=2, @C=3>
+p foo  # => #<Foo:0x... @C=3, @D=4>
 p foo.public_methods(false).sort  # => [:C, :C=, :D?, :a=, :b]
 ```
 

@@ -1,6 +1,6 @@
 require 'modeling'
 
-def Bar
+class Bar
   model :@ti_D
 end
 
@@ -9,5 +9,5 @@ class Foo
 end
 
 foo = Foo.new 1, 2, 3, 4
-p foo  # => #<Foo:0x... @a=1, @b=2, @C=3>
+p foo  # => #<Foo:0x... @C=3, @D=4>
 p foo.public_methods(false).sort  # => [:C, :C=, :D?, :a=, :b]

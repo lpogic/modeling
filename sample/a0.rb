@@ -3,7 +3,7 @@ require 'modeling'
 # with modeling:
 
 class Foo
-  model :first, :@r_second
+  model :first, :@ir_second
 end
 
 # without modeling:

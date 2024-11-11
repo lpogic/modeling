@@ -10,15 +10,15 @@ module Modeling
     model_fields.each do |field|
       attr_writer field.name if field.writer?
       attr_reader field.name if field.reader?
-      attr_tester field.name if field.tester?
+      attr_tester "#{field.name}?".to_sym, field.instance_variable_name if field.tester?
     end
   end
   
   private
 
-  def attr_tester symbol
-    define_method "#{symbol}?" do
-      instance_variable_get(symbol) ? true : false
+  def attr_tester tester, instance_variable
+    define_method tester do
+      instance_variable_get(instance_variable) ? true : false
     end
   end
 
@@ -42,7 +42,9 @@ module Modeling
         end
       end
       model_fields.each do |field|
-        instance_variable_set field.attribute_name, model_arguments[field.name] if field.create_attr?
+        if field.instance_variable?
+          instance_variable_set field.instance_variable_name, model_arguments[field.name]
+        end
       end
       if initializer
         instance_exec super_initialize, **model_arguments, &initializer
