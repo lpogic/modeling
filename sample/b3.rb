@@ -13,7 +13,7 @@ class Bar < Foo
 end
 
 bar = Bar.new a: 1, b: 2
-p bar  # => #<Bar:0x... @a=1, @b=2>
+p bar  # => #<Bar:0x... @b=2, @a=1>
 
 rabar = Bar.new 1, 2
-p rabar  # => #<Bar:0x... @a=2, @b=1>
+p rabar  # => #<Bar:0x... @b=1, @a=2>

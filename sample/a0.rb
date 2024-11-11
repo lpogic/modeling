@@ -1,20 +1,19 @@
 require 'modeling'
 
-class Foo
+# with modeling:
 
-  model :first, :second
-  
+class Foo
+  model :first, :@r_second
 end
 
-# above and below are identical definitions
+# without modeling:
 
 class Foo
-
-  def initialize first, second
-    @first = first
-    @second = second
+  def initialize _first = nil, _second = nil, **na
+    @first = na.key?(:first) ? na[:first] : _first
+    @second = na.key?(:second) ? na[:second] : _second
   end
 
-  attr_accessor :first, :second
-
+  attr_accessor :first
+  attr :second
 end

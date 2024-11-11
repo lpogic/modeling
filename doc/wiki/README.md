@@ -1,112 +1,103 @@
 Welcome to the _modeling_ documentation home page!
 ===
 
+Installation
+---
+```
+gem install modeling
+```
+
 Usage
 ---
-### 1. Basic use case
+### 1. Basic concept
 ```RUBY
 require 'modeling'
 
-class Foo
+# with modeling:
 
-  model :first, :second
-  
+class Foo
+  model :first, :@r_second
 end
 
-# above and below are identical definitions
+# without modeling:
 
 class Foo
-
-  def initialize first, second
-    @first = first
-    @second = second
+  def initialize _first = nil, _second = nil, **na
+    @first = na.key?(:first) ? na[:first] : _first
+    @second = na.key?(:second) ? na[:second] : _second
   end
 
-  attr_accessor :first, :second
-
+  attr_accessor :first
+  attr :second
 end
 ```
 
-### 2. ::model with block
+### 2. ::model with initializer
 ```RUBY
 require 'modeling'
 
 class Foo
 
-  model :a, :@b do |**na|
-    p na[:a]
-    p na[:b]
+  model :a, :@_b do |**na|
+    p na
   end
 
 end
 
-foo = Foo.new 1, 2 
-# => 1
-# => 2
+foo = Foo.new 1, 2 # => {:a=>1, :b=>2}
 p foo  # => #<Foo:0x... @a=1, @b=2>
-p foo.methods  # => [:a=, :a, ...
+p foo.public_methods(false).sort  # => [:a, :a=]
 ```
 
-### 3. Don't enable Modeling globally
+### 3. Enable modeling only for selected classes
 ```RUBY
 require 'modeling/module'
 
 class Foo
   extend Modeling
 
-  model :a, :b, :@c
-
+  model :a, :b
 end
 
-foo = Foo.new 1, 2, 3 
-p foo  # => #<Foo:0x... @a=1, @b=2, @c=3>
+foo = Foo.new 1, 2
+p foo  # => #<Foo:0x... @a=1, @b=2>
 ```
 
-### 4. Symbol encoded model fields
+### 4. Modeling with symbols
 ```RUBY
 require 'modeling'
 
 class Foo
 
-  model :a, :b?, :c=, :@d, :e!
+  model :a, :@_b, :@r_c, :@wrt_d, :@it_e
 
 end
 
 foo = Foo.new 1, 2, 3, 4, 5
 p foo  # => #<Foo:0x... @a=1, @b=2, @c=3, @d=4>
-p foo.methods  # => [:a=, :a, :b, :c=, ...
+p foo.public_methods(false).sort  # => [:a, :a=, :c, :d, :d=, :d?, :e?]
 
-
-#         | :_  | :_? | :_= | :@_ | :_! |  
-#         |_____|_____|_____|_____|_____|
-# attr    |  1  |  1  |  1  |  1  |  0  |
-#         |_____|_____|_____|_____|_____|
-# reader  |  1  |  1  |  0  |  0  |  0  |
-#         |_____|_____|_____|_____|_____|
-# writer  |  1  |  0  |  1  |  0  |  0  |
-#         |_____|_____|_____|_____|_____|
-#         public   | writeonly |  noattr(argument passed to initializer block only)
-#              readonly     private
+# @r - reader
+# @w - writer
+# @t - tester
+# @i - initializer variable (not attribute)
 ```
 
-### 5. String encoded model fields
+### 5. Alternative ways of modeling
 ```RUBY
 require 'modeling'
 
+def Bar
+  model :@ti_D
+end
+
 class Foo
-
-  model "a/w", "b/r", "c/ra", "d/wat"
-
+  model "@w_a", :@R_b, "C", *Bar.model_fields
 end
 
 foo = Foo.new 1, 2, 3, 4
-p foo  # => #<Foo:0x... @c=3, @d=4>
-p foo.methods  # => [:a=, :b, :c, :d=, :d?, ...
-
-# a - generate & assign attribute
-# r - generate attr_reader
-# w - generate attr_writer
-# t - generate attr_tester
+p foo  # => #<Foo:0x... @a=1, @b=2, @C=3>
+p foo.public_methods(false).sort  # => [:C, :C=, :D?, :a=, :b]
 ```
 
 ### 6. Mixed keyword and positional arguments
@@ -163,8 +154,31 @@ class Bar < Foo
 end
 
 bar = Bar.new a: 1, b: 2
-p bar  # => #<Bar:0x... @a=1, @b=2>
+p bar  # => #<Bar:0x... @b=2, @a=1>
 
 rabar = Bar.new 1, 2
-p rabar  # => #<Bar:0x... @a=2, @b=1>
+p rabar  # => #<Bar:0x... @b=1, @a=2>
 ```
+
+### 9. Explicit super initialization
+```RUBY
+require 'modeling'
+
+class Foo
+
+  model :a
+
+end
+
+class Bar < Foo
+
+  model :b do |init_super|
+    init_super.call a: @b
+  end
+
+end
+
+rabar = Bar.new 1
+p rabar  # => #<Bar:0x... @a=1, @b=1>
+```
+

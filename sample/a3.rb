@@ -2,22 +2,15 @@ require 'modeling'
 
 class Foo
 
-  model :a, :b?, :c=, :@d, :e!
+  model :a, :@_b, :@r_c, :@wrt_d, :@it_e
 
 end
 
 foo = Foo.new 1, 2, 3, 4, 5
 p foo  # => #<Foo:0x... @a=1, @b=2, @c=3, @d=4>
-p foo.methods  # => [:a=, :a, :b, :c=, ...
+p foo.public_methods(false).sort  # => [:a, :a=, :c, :d, :d=, :d?, :e?]
 
-
-#         | :_  | :_? | :_= | :@_ | :_! |  
-#         |_____|_____|_____|_____|_____|
-# attr    |  1  |  1  |  1  |  1  |  0  |
-#         |_____|_____|_____|_____|_____|
-# reader  |  1  |  1  |  0  |  0  |  0  |
-#         |_____|_____|_____|_____|_____|
-# writer  |  1  |  0  |  1  |  0  |  0  |
-#         |_____|_____|_____|_____|_____|
-#         public   | writeonly |  noattr(argument passed to initializer block only)
-#              readonly     private
+# @r - reader
+# @w - writer
+# @t - tester
+# @i - initializer variable (not attribute)

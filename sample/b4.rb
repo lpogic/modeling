@@ -8,8 +8,8 @@ end
 
 class Bar < Foo
 
-  model :b do |super_proc|
-    super_proc.call a: @b
+  model :b do |init_super|
+    init_super.call a: @b
   end
 
 end

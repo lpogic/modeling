@@ -5,8 +5,7 @@ Gem::Specification.new do |s|
   s.version     = Modeling::VERSION
   s.summary     = "A concise way to define the class shape"
   s.description = <<-EOT
-  Enables writting class initializers and attribute accessors in one line. 
-  Struct class alternative. Keyword & positional arguments mixing. Optional initializer arguments filtering.
+    Simplify common class definition by encoding attributes with their access modes.
   EOT
   s.authors     = ["Łukasz Pomietło"]
   s.email       = "oficjalnyadreslukasza@gmail.com"

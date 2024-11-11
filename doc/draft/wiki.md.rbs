@@ -1,0 +1,20 @@
+Welcome to the _#{ gemspec.name }_ documentation home page!
+===
+
+Installation
+---
+```
+gem install #{ gemspec.name }
+```
+
+Usage
+---
+#{ sample.call "Basic concept", "sample/a0.rb" }
+#{ sample.call "::model with initializer", "sample/a1.rb" }
+#{ sample.call "Enable modeling only for selected classes", "sample/a2.rb" }
+#{ sample.call "Modeling with symbols", "sample/a3.rb" }
+#{ sample.call "Alternative ways of modeling", "sample/a4.rb" }
+#{ sample.call "Mixed keyword and positional arguments", "sample/b1.rb" }
+#{ sample.call "Inheritance", "sample/b2.rb" }
+#{ sample.call "Modeled inheritance", "sample/b3.rb" }
+#{ sample.call "Explicit super initialization", "sample/b4.rb" }
