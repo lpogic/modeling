@@ -1,7 +1,8 @@
 modeling - A concise way to define the class shape
 ===
 
-Simplify common class definition by encoding attributes with their access modes.
+Adds the ability to quickly model classes. Definitions of instance variables and access methods are reduced to one line. 
+Creating an instance of the modeled class is significantly slower (~20x), so its use for classes whose instances are created frequently is not recommended.
 
 
 Basics

@@ -10,13 +10,11 @@ module Modeling
       @writer = writer
       @reader = reader
       @tester = tester
+      @instance_variable_name = "@#{name}".to_sym
     end
 
     attr :name
-
-    def instance_variable_name
-      "@#{name}"
-    end
+    attr :instance_variable_name
 
     def initialize_argument?
       @initialize_argument
