@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.name        = "modeling"
   s.version     = Modeling::VERSION
   s.summary     = "A concise way to define the class shape"
-  s.description = <<-EOT
+  s.description = <<~EOT
     Simplify common class definition by encoding attributes with their access modes.
   EOT
   s.authors     = ["Łukasz Pomietło"]

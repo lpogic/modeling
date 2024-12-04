@@ -1,7 +1,11 @@
 module Modeling
+  class Exception < ::Exception
+  end
+
   class ModelField
-    def initialize name, instance_variable, writer, reader, tester
+    def initialize name, initialize_argument, instance_variable, writer, reader, tester
       @name = name
+      @initialize_argument = initialize_argument
       @instance_variable = instance_variable
       @writer = writer
       @reader = reader
@@ -12,6 +16,10 @@ module Modeling
 
     def instance_variable_name
       "@#{name}"
+    end
+
+    def initialize_argument?
+      @initialize_argument
     end
 
     def instance_variable?
@@ -38,28 +46,39 @@ module Modeling
         when Symbol, String
           parse_model_field argument
         else
-          raise "Unsupported argument #{argument} of #{argument.class} class."
+          raise Exception.new "Unsupported argument #{argument} of #{argument.class} class."
         end
       end
 
       def parse_model_field argument
-        instance_variable = reader = writer = tester = false
-        if argument.start_with? "@"
-          meta, name = argument.to_s.split "_", 2
-          meta.to_s.each_char do |char|
-            case char
-            when "r", "R" then reader = true
-            when "w", "W" then writer = true
-            when "t", "T" then tester = true
-            when "i", "I" then instance_variable = true
+        initialize_argument = instance_variable = reader = writer = tester = false
+        name_start = (0...argument.length).each do |i|
+          case a = argument[i]
+          when "R" then reader = true
+          when "W" then writer = true
+          when "T" then tester = true
+          when "V" then instance_variable = true
+          when "A" then initialize_argument = true
+          when "@" then instance_variable = initialize_argument = true
+          when "_" then break i + 1
+          else
+            if a.upcase != a
+              break i
+            else raise Exception.new "Invalid model field '#{argument}' - unknown option '#{a}'"
             end
           end
-        else
-          name = argument
-          reader = writer = instance_variable = true
         end
-        raise "Invalid model field #{argument}" unless name =~ /\w+/
-        ModelField.new name.to_sym, instance_variable, writer, reader, tester
+        case name_start
+        when 0
+          initialize_argument = instance_variable = reader = writer = true
+          name = argument
+        when Integer
+          name = argument[name_start..]
+        else raise Exception.new "Invalid model field '#{argument}' - field name is missing"
+        end
+
+        raise Exception.new "Invalid model field #{argument} - field name '#{name}' is invalid" unless name =~ /\w+/
+        ModelField.new name.to_sym, initialize_argument, instance_variable, writer, reader, tester
       end
     end
   end

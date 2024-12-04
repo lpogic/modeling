@@ -9,47 +9,24 @@ gem install modeling
 
 Usage
 ---
-### 1. Basic concept
-```RUBY
-require 'modeling'
-
-# with modeling:
-
-class Foo
-  model :first, :@ir_second
-end
-
-# without modeling:
-
-class Foo
-  def initialize _first = nil, _second = nil, **na
-    @first = na.key?(:first) ? na[:first] : _first
-    @second = na.key?(:second) ? na[:second] : _second
-  end
-
-  attr_accessor :first
-  attr :second
-end
-```
-
-### 2. ::model with initializer
+### 1. ::model with initializer
 ```RUBY
 require 'modeling'
 
 class Foo
 
-  model :a, :@_b do |**na|
+  model :a, :@b do |**na|
     p na
   end
 
 end
 
 foo = Foo.new 1, 2 # => {:a=>1, :b=>2}
-p foo  # => #<Foo:0x... @a=1>
+p foo  # => #<Foo:0x... @a=1, @b=2>
 p foo.public_methods(false).sort  # => [:a, :a=]
 ```
 
-### 3. Enable modeling only for selected classes
+### 2. Enable modeling only for selected classes
 ```RUBY
 require 'modeling/module'
 
@@ -63,44 +40,48 @@ foo = Foo.new 1, 2
 p foo  # => #<Foo:0x... @a=1, @b=2>
 ```
 
-### 4. Modeling with symbols
+### 3. Modeling with symbols
 ```RUBY
 require 'modeling'
 
 class Foo
 
-  model :a, :@i_b, :@ir_c, :@wrt_d, :@it_e
+  model :a, :R_b, :W_c, :T_d, :A_e, :V__f, :@g, :@RT_h
 
 end
 
-foo = Foo.new 1, 2, 3, 4, 5
-p foo  # => #<Foo:0x... @a=1, @b=2, @c=3, @e=5>
-p foo.public_methods(false).sort  # => [:a, :a=, :c, :d, :d=, :d?, :e?]
+foo = Foo.new 1, 2, 3, 4
+p foo  # => #<Foo:0x... @a=1, @_f=nil, @g=3, @h=4>
+p foo.public_methods(false).sort  # => [:a, :a=, :b, :c=, :d?, :h, :h?]
 
-# @r - reader
-# @w - writer
-# @t - tester
-# @i - instance variable
+# R: Reader
+# W: Writer
+# T: Tester (method with '?' suffix, returns false if variable is nil/false, true otherwise)
+# A: Initialize Argument (accepts field during initialization)
+# V: Instance Variable (create instance variable)
+# @: Initialize Argument + Instance Variable
+# _: separates options and name
+# when no options: like RWAV
 ```
 
-### 5. Alternative ways of modeling
+### 4. Alternative ways of modeling
 ```RUBY
 require 'modeling'
 
 class Bar
-  model :@ti_D
+  model :@T_d
 end
 
 class Foo
-  model "@w_a", :@R_b, "C", *Bar.model_fields
+  model "W_a", :Rb, "c", *Bar.model_fields
 end
 
-foo = Foo.new 1, 2, 3, 4
-p foo  # => #<Foo:0x... @C=3, @D=4>
-p foo.public_methods(false).sort  # => [:C, :C=, :D?, :a=, :b]
+foo = Foo.new 1, 2
+p foo  # => #<Foo:0x... @c=1, @d=2>
+p foo.public_methods(false).sort  # => [:a=, :b, :c, :c=, :d?]
 ```
 
-### 6. Mixed keyword and positional arguments
+### 5. Mixed keyword and positional arguments
 ```RUBY
 require 'modeling'
 
@@ -117,7 +98,7 @@ bar = Foo.new 1, 2, 3, b: 4
 p bar  # => #<Foo:0x... @a=1, @b=4, @c=3>
 ```
 
-### 7. Inheritance
+### 6. Inheritance
 ```RUBY
 require 'modeling'
 
@@ -137,7 +118,7 @@ bar = Bar.new 1
 p bar  # => #<Bar:0x... @a=1, @b=nil>
 ```
 
-### 8. Modeled inheritance
+### 7. Modeled inheritance
 ```RUBY
 require 'modeling'
 
@@ -160,7 +141,7 @@ rabar = Bar.new 1, 2
 p rabar  # => #<Bar:0x... @b=1, @a=2>
 ```
 
-### 9. Explicit super initialization
+### 8. Explicit super initialization
 ```RUBY
 require 'modeling'
 

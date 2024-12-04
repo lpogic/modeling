@@ -3,17 +3,17 @@ require 'modeling'
 # with modeling:
 
 class Foo
-  model :first, :@ir_second
+  model :first, :@R_second
 end
 
 # without modeling:
 
 class Foo
-  def initialize _first = nil, _second = nil, **na
-    @first = na.key?(:first) ? na[:first] : _first
-    @second = na.key?(:second) ? na[:second] : _second
+  def initialize first, second
+    @first = first
+    @second = second
   end
 
   attr_accessor :first
-  attr :second
+  attr_reader :second
 end

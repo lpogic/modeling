@@ -2,15 +2,19 @@ require 'modeling'
 
 class Foo
 
-  model :a, :@i_b, :@ir_c, :@wrt_d, :@it_e
+  model :a, :R_b, :W_c, :T_d, :A_e, :V__f, :@g, :@RT_h
 
 end
 
-foo = Foo.new 1, 2, 3, 4, 5
-p foo  # => #<Foo:0x... @a=1, @b=2, @c=3, @e=5>
-p foo.public_methods(false).sort  # => [:a, :a=, :c, :d, :d=, :d?, :e?]
+foo = Foo.new 1, 2, 3, 4
+p foo  # => #<Foo:0x... @a=1, @_f=nil, @g=3, @h=4>
+p foo.public_methods(false).sort  # => [:a, :a=, :b, :c=, :d?, :h, :h?]
 
-# @r - reader
-# @w - writer
-# @t - tester
-# @i - instance variable
+# R: Reader
+# W: Writer
+# T: Tester (method with '?' suffix, returns false if variable is nil/false, true otherwise)
+# A: Initialize Argument (accepts field during initialization)
+# V: Instance Variable (create instance variable)
+# @: Initialize Argument + Instance Variable
+# _: separates options and name
+# when no options: like RWAV

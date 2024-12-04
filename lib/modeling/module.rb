@@ -22,8 +22,8 @@ module Modeling
     end
   end
 
-  def self.model_arguments fields, *a, **na
-    fields.zip(a).map do |field, arg| 
+  def self.initialize_arguments fields, *a, **na
+    fields.filter(&:initialize_argument?).zip(a).map do |field, arg| 
       name = field.name
       value = na.key?(name) ? na[name] : arg 
       [name, value]
@@ -33,23 +33,23 @@ module Modeling
   def define_initialize initializer_class, &initializer
     define_method :initialize do |*a, **na, &b|
       model_fields = initializer_class.model_fields
-      model_arguments = Modeling.model_arguments model_fields, *a, **na
-      super_initialize = proc do |*asc, **nasc, &bsc|
-        if asc.empty? && nasc.empty? && !bsc
-          super(*(a[model_arguments.size..] || []), **na.except(*model_arguments.keys), &b)
+      initialize_arguments = Modeling.initialize_arguments model_fields, *a, **na
+      super_initialize = proc do |*as, **nas, &bs|
+        if as.empty? && nas.empty? && !bs
+          super(*(a[initialize_arguments.size..] || []), **na.except(*initialize_arguments.keys), &b)
         else
-          super(*asc, **nasc, &bsc)
+          super(*as, **nas, &bs)
         end
       end
       model_fields.each do |field|
         if field.instance_variable?
-          instance_variable_set field.instance_variable_name, model_arguments[field.name]
+          instance_variable_set field.instance_variable_name, initialize_arguments[field.name]
         end
       end
       if initializer
-        instance_exec super_initialize, **model_arguments, &initializer
+        instance_exec super_initialize, **initialize_arguments, &initializer
       else
-        super_initialize.call
+        super(*(a[initialize_arguments.size..] || []), **na.except(*initialize_arguments.keys), &b)
       end
     end
   end
