@@ -8,11 +8,11 @@ end
 
 class Bar < Foo
 
-  model :b do |init_super|
-    init_super.call a: @b
+  model :b do |mi|
+    mi.super a: @b
   end
 
 end
 
-rabar = Bar.new 1
-p rabar  # => #<Bar:0x... @a=1, @b=1>
+bar = Bar.new 1
+p bar  # => #<Bar:0x... @b=1, @a=1>

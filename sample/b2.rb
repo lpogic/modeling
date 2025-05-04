@@ -8,7 +8,7 @@ end
 
 class Bar < Foo
   def initialize a
-    super(a)
+    super
   end
 end
 

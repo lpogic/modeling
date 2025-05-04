@@ -1,56 +1,51 @@
+require 'forwardable'
+require_relative 'exception'
 require_relative 'model_field'
+require_relative 'model_initializer'
 
 module Modeling
 
-  attr_accessor :model_fields
+  attr :model_fields
 
-  def model *fields, &initializer
-    self.model_fields = model_fields = fields.map{ ModelField.parse _1 }
-    define_initialize self, &initializer
-    model_fields.each do |field|
+  def model *fields, rest: :positional_, keyword: :keyword_, block: :block_, &initializer
+    @model_fields = fields.map{|f| ModelField.parse f }
+    instance_variables_definition = @model_fields.map do |field| 
+      if field.nil_instance_variable?
+        "@#{field.name} = nil"
+      elsif field.instance_variable?
+        "@#{field.name} = #{field.name}"
+      end
+    end.join "\n"
+    direct_super = "super #{ "*#{rest}," if rest } #{ "**#{keyword}," if keyword } &#{ block || "nil" }"
+    initialize_body = if initializer
+      model_initialize = "initialize_#{self.name.tr ":", "_"}"
+      private define_method(model_initialize, initializer)
+      if initializer.arity == 0
+        "#{direct_super}; #{model_initialize}"
+      else
+        super_caller = "proc{|a, na, b| super *a, **na, &b }"
+        params = "#{ rest || "nil" }, #{ keyword || "nil" }, #{ block || "nil" }"
+        mi = "Modeling::ModelInitializer.new(self.class.model_fields, #{super_caller}, binding, #{params})"
+        "#{model_initialize} #{mi}"
+      end
+    else
+      direct_super
+    end
+    class_eval <<~CODE
+      def initialize(
+        #{ @model_fields.map{|f| "_#{f.name} = nil, " }.join }
+        #{ "*#{rest}," if rest }
+        #{ @model_fields.map{|f| "#{f.name}: _#{f.name}," }.join }
+        #{ "**#{keyword}," if keyword }
+        #{ "&#{block}" if block }
+      )
+        #{instance_variables_definition}
+        #{initialize_body}
+      end
+    CODE
+    @model_fields.each do |field|
       attr_writer field.name if field.writer?
       attr_reader field.name if field.reader?
-      attr_tester "#{field.name}?".to_sym, field.instance_variable_name if field.tester?
-    end
-  end
-  
-  private
-
-  def attr_tester tester, instance_variable
-    define_method tester do
-      instance_variable_get(instance_variable) ? true : false
-    end
-  end
-
-  def self.initialize_arguments fields, *a, **na
-    fields.filter(&:initialize_argument?).zip(a).map do |field, arg| 
-      name = field.name
-      value = na.key?(name) ? na[name] : arg 
-      [name, value]
-    end.to_h
-  end
-
-  def define_initialize initializer_class, &initializer
-    define_method :initialize do |*a, **na, &b|
-      model_fields = initializer_class.model_fields
-      initialize_arguments = Modeling.initialize_arguments model_fields, *a, **na
-      super_initialize = proc do |*as, **nas, &bs|
-        if as.empty? && nas.empty? && !bs
-          super(*(a[initialize_arguments.size..] || []), **na.except(*initialize_arguments.keys), &b)
-        else
-          super(*as, **nas, &bs)
-        end
-      end
-      model_fields.each do |field|
-        if field.instance_variable?
-          instance_variable_set field.instance_variable_name, initialize_arguments[field.name]
-        end
-      end
-      if initializer
-        instance_exec super_initialize, **initialize_arguments, &initializer
-      else
-        super(*(a[initialize_arguments.size..] || []), **na.except(*initialize_arguments.keys), &b)
-      end
     end
   end
 end

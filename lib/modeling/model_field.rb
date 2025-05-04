@@ -1,27 +1,21 @@
 module Modeling
-  class Exception < ::Exception
-  end
-
   class ModelField
-    def initialize name, initialize_argument, instance_variable, writer, reader, tester
+    def initialize name, instance_variable, writer, reader, nil_instance_variable
       @name = name
-      @initialize_argument = initialize_argument
       @instance_variable = instance_variable
       @writer = writer
       @reader = reader
-      @tester = tester
-      @instance_variable_name = "@#{name}".to_sym
+      @nil_instance_variable = nil_instance_variable
     end
 
     attr :name
-    attr :instance_variable_name
-
-    def initialize_argument?
-      @initialize_argument
-    end
 
     def instance_variable?
       @instance_variable
+    end
+
+    def nil_instance_variable?
+      @nil_instance_variable
     end
 
     def writer?
@@ -32,12 +26,8 @@ module Modeling
       @reader
     end
 
-    def tester?
-      @tester
-    end
-
     class << self
-      def parse argument, filter = nil
+      def parse argument
         case argument
         when ModelField
           argument
@@ -49,15 +39,13 @@ module Modeling
       end
 
       def parse_model_field argument
-        initialize_argument = instance_variable = reader = writer = tester = false
+        instance_variable = reader = writer = nil_instance_variable = false
         name_start = (0...argument.length).each do |i|
           case a = argument[i]
           when "R" then reader = true
           when "W" then writer = true
-          when "T" then tester = true
-          when "V" then instance_variable = true
-          when "A" then initialize_argument = true
-          when "@" then instance_variable = initialize_argument = true
+          when "@" then instance_variable = true
+          when "N" then nil_instance_variable = true
           when "_" then break i + 1
           else
             if a.upcase != a
@@ -66,17 +54,19 @@ module Modeling
             end
           end
         end
-        case name_start
+        name = case name_start
         when 0
-          initialize_argument = instance_variable = reader = writer = true
-          name = argument
+          instance_variable = reader = writer = true
+          argument
         when Integer
-          name = argument[name_start..]
-        else raise Exception.new "Invalid model field '#{argument}' - field name is missing"
+          argument[name_start..]
+        else
+          ''
         end
 
+        raise Exception.new "Invalid model field '#{argument}' - field name is missing" if name == ''
         raise Exception.new "Invalid model field #{argument} - field name '#{name}' is invalid" unless name =~ /\w+/
-        ModelField.new name.to_sym, initialize_argument, instance_variable, writer, reader, tester
+        ModelField.new name.to_sym, instance_variable, writer, reader, nil_instance_variable
       end
     end
   end
