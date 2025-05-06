@@ -1,17 +1,11 @@
 require 'modeling'
 
 class Foo
-
   model :a
-
 end
 
 class Bar < Foo
-
-  model :b do |mi|
-    mi.super a: @b
-  end
-
+  model :b, 'super(b)'
 end
 
 bar = Bar.new 1

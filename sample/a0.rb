@@ -1,9 +1,9 @@
-require 'modeling'
-
 # with modeling:
 
+require 'modeling'
+
 class Foo
-  model :first, :@R_second
+  model :@first, :second
 end
 
 # without modeling:
@@ -14,6 +14,5 @@ class Foo
     @second = second
   end
 
-  attr_accessor :first
-  attr_reader :second
+  attr_accessor :second
 end

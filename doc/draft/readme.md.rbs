@@ -3,19 +3,21 @@
 
 #{ gemspec.description }
 
-Basics
+Basic sample
 ---
 #{ code.call "sample/a0.rb" }
+
+[More samples](https://github.com/lpogic/modeling/blob/main/doc/wiki/README.md)
+
+Requirements
+---
+- Ruby version: #{ gemspec.required_ruby_version }
 
 Installation
 ---
 ```
 gem install #{ gemspec.name }
 ```
-
-Usage
----
-[Wiki](https://github.com/lpogic/modeling/blob/main/doc/wiki/README.md)
 
 Authors
 ---

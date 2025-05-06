@@ -1,19 +1,20 @@
-modeling - A concise way to define the class shape
+modeling - A gem for writing class initializers more concisely.
 ===
 
-Adds the ability to quickly model classes. Definitions of instance variables and access methods are reduced to one line. 
-Creating an instance of the modeled class is significantly slower (~20x), so its use for classes whose instances are created frequently is not recommended.
+A common pattern in initializers is to take each argument and assign it to an identically named instance variable. 
+In pure Ruby you would need to repeat each variable name 3 times to do this. This gem allows you to eliminate these repetitions.
+Moreover, it can also define attribute accessors for free.
 
 
-Basics
+Basic sample
 ---
 ```RUBY
-require 'modeling'
-
 # with modeling:
 
+require 'modeling'
+
 class Foo
-  model :first, :@R_second
+  model :@first, :second
 end
 
 # without modeling:
@@ -24,20 +25,21 @@ class Foo
     @second = second
   end
 
-  attr_accessor :first
-  attr_reader :second
+  attr_accessor :second
 end
 ```
+
+[More samples](https://github.com/lpogic/modeling/blob/main/doc/wiki/README.md)
+
+Requirements
+---
+- Ruby version: >= 3.4
 
 Installation
 ---
 ```
 gem install modeling
 ```
-
-Usage
----
-[Wiki](https://github.com/lpogic/modeling/blob/main/doc/wiki/README.md)
 
 Authors
 ---

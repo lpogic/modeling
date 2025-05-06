@@ -1,48 +1,42 @@
 require 'forwardable'
 require_relative 'exception'
 require_relative 'model_field'
-require_relative 'model_initializer'
 
 module Modeling
 
+  class << self
+    attr_accessor :keywords
+  end
+
   attr :model_fields
 
-  def model *fields, rest: :positional_, keyword: :keyword_, block: :block_, &initializer
-    @model_fields = fields.map{|f| ModelField.parse f }
-    instance_variables_definition = @model_fields.map do |field| 
-      if field.nil_instance_variable?
-        "@#{field.name} = nil"
-      elsif field.instance_variable?
-        "@#{field.name} = #{field.name}"
-      end
-    end.join "\n"
-    direct_super = "super #{ "*#{rest}," if rest } #{ "**#{keyword}," if keyword } &#{ block || "nil" }"
-    initialize_body = if initializer
-      model_initialize = "initialize_#{self.name.tr ":", "_"}"
-      private define_method(model_initialize, initializer)
-      if initializer.arity == 0
-        "#{direct_super}; #{model_initialize}"
+  def model *fields, keywords: Modeling.keywords, &initialize_block
+    initialize_string = fields.last.is_a?(String) ? fields.pop : ""
+    @model_fields = fields.map do |field| 
+      if field == :<
+        if superclass.respond_to? :model_fields
+          superclass.model_fields.map{ ModelField.parse "#{it.name}!" }
+        else
+          superclass.method(:initialize).parameters.filter_map{ case it[0] when :req then ModelField.parse "#{it[1]}!" end }
+        end
       else
-        super_caller = "proc{|a, na, b| super *a, **na, &b }"
-        params = "#{ rest || "nil" }, #{ keyword || "nil" }, #{ block || "nil" }"
-        mi = "Modeling::ModelInitializer.new(self.class.model_fields, #{super_caller}, binding, #{params})"
-        "#{model_initialize} #{mi}"
+        ModelField.parse field
       end
-    else
-      direct_super
-    end
-    class_eval <<~CODE
-      def initialize(
-        #{ @model_fields.map{|f| "_#{f.name} = nil, " }.join }
-        #{ "*#{rest}," if rest }
-        #{ @model_fields.map{|f| "#{f.name}: _#{f.name}," }.join }
-        #{ "**#{keyword}," if keyword }
-        #{ "&#{block}" if block }
-      )
+    end.flatten
+    instance_variables_definition = @model_fields.filter(&:instance_variable?).map{|f| "@#{f.name} = #{f.name}" }.join "\n"
+    initialize_block = private define_method("initialize_#{self.name.tr ":", "_"}", initialize_block) if initialize_block
+    initialize_super = @model_fields.filter(&:super_argument?).map{|f| f.name }.then{ _1.empty? && initialize_string != "" ? "" : "super(#{_1.join ","})"}
+    arguments = keywords ? 
+      @model_fields.map{|f| "_#{f.name} = nil, " }.join + @model_fields.map{|f| "#{f.name}: _#{f.name}" }.join(",") :
+      @model_fields.map{|f| "#{f.name} = nil" }.join(",")
+    class_eval <<~xx
+      def initialize(#{ arguments })
+        #{initialize_super}
         #{instance_variables_definition}
-        #{initialize_body}
+        #{initialize_string}
+        #{initialize_block}
       end
-    CODE
+    xx
     @model_fields.each do |field|
       attr_writer field.name if field.writer?
       attr_reader field.name if field.reader?

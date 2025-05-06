@@ -1,13 +1,13 @@
 doc-update.rb
 ===
 
-Generates documentation from doc/draft
+Generates documentation from doc/draft.
 
 run-samples.rb
 ===
 
-Run selected scripts from samples folder sequentially.
+Runs samples.
 
 options:
 
-**-sSTART, --start=START** - First script to run. All previous will be skipped.
+**-sSTART, --start=START** - First sample to run. All previous will be skipped.

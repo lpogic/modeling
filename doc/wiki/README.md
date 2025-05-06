@@ -7,26 +7,50 @@ Installation
 gem install modeling
 ```
 
-Usage
+Basic usage
 ---
-### 1. ::model with initializer
+### 1. Comparison with traditional initialize
+```RUBY
+# with modeling:
+
+require 'modeling'
+
+class Foo
+  model :@first, :second
+end
+
+# without modeling:
+
+class Foo
+  def initialize first, second
+    @first = first
+    @second = second
+  end
+
+  attr_accessor :second
+end
+```
+
+### 2. Custom initialize body
 ```RUBY
 require 'modeling'
 
 class Foo
-
-  model :a, :@b do |**na|
-    p na
-  end
-
+  model :a, :@b, <<-'RUBY'
+    puts "This is a custom initialize body."
+    puts "a + b = #{a + b}"
+  RUBY
 end
 
-foo = Foo.new 1, 2 # => {:a=>1, :b=>2}
+foo = Foo.new 1, 2
+# => This is a custom initialize body.
+# => a + b = 3
+
 p foo  # => #<Foo:0x... @a=1, @b=2>
 p foo.public_methods(false).sort  # => [:a, :a=]
 ```
 
-### 2. Enable modeling only for selected classes
+### 3. Enabling modeling locally
 ```RUBY
 require 'modeling/module'
 
@@ -40,55 +64,59 @@ foo = Foo.new 1, 2
 p foo  # => #<Foo:0x... @a=1, @b=2>
 ```
 
-### 3. Modeling with symbols
-```RUBY
-require 'modeling'
-
-class Foo
-
-  model :a, :R_b, :W_c, :T_d, :A_e, :V__f, :@g, :@RT_h
-
-end
-
-foo = Foo.new 1, 2, 3, 4
-p foo  # => #<Foo:0x... @a=1, @_f=nil, @g=3, @h=4>
-p foo.public_methods(false).sort  # => [:a, :a=, :b, :c=, :d?, :h, :h?]
-
-# R: Reader
-# W: Writer
-# T: Tester (method with '?' suffix, returns false if variable is nil/false, true otherwise)
-# A: Initialize Argument (accepts field during initialization)
-# V: Instance Variable (create instance variable)
-# @: Initialize Argument + Instance Variable
-# _: separates options and name
-# when no options: like RWAV
-```
-
-### 4. Alternative ways of modeling
+### 4. Arguments encoding
 ```RUBY
 require 'modeling'
 
 class Bar
-  model :@T_d
+  def initialize *a
+    p a
+  end
 end
 
-class Foo
-  model "W_a", :Rb, "c", *Bar.model_fields
+class Foo < Bar
+  model :a, :@b, :c=, :d!
 end
 
-foo = Foo.new 1, 2
-p foo  # => #<Foo:0x... @c=1, @d=2>
-p foo.public_methods(false).sort  # => [:a=, :b, :c, :c=, :d?]
+foo = Foo.new 1, 2, 3, 4 # => [4]
+p foo  # => #<Foo:0x... @a=1, @b=2>
+p foo.public_methods(false).sort  # => [:a, :a=]
+p foo.method(:initialize).parameters # => [[:opt, :a], [:opt, :b], [:opt, :c], [:opt, :d]]
+
+# Symbol legend:
+# a: assign to attribute, generate reader and writer
+# @b: assign to attribute
+# c=: do not create attribute for this argument
+# d!: send this argument to super initialize
 ```
 
-### 5. Mixed keyword and positional arguments
+
+Advanced usage
+---
+### 5. Modeling inheriting classes
+```RUBY
+require 'modeling'
+
+class Bar
+  model :@a, :b
+end
+
+class Foo < Bar
+  model :c, :<
+end
+
+foo = Foo.new 1, 2, 3
+p foo  # => #<Foo:0x... @a=2, @b=3, @c=1>
+
+# ":<" means: Add all positional arguments from superclass to the initialize arguments
+```
+
+### 6. Enabling keyword arguments
 ```RUBY
 require 'modeling'
 
 class Foo
-
-  model :a, :b, :c
-
+  model :a, :b, :c, keywords: true
 end
 
 foo = Foo.new 1, c: 2
@@ -96,21 +124,21 @@ p foo  # => #<Foo:0x... @a=1, @b=nil, @c=2>
 
 bar = Foo.new 1, 2, 3, b: 4
 p bar  # => #<Foo:0x... @a=1, @b=4, @c=3>
+
+# "keywords: true" allows passing some attributes by keyword
 ```
 
-### 6. Inheritance
+### 7. Modeling inherited classes
 ```RUBY
 require 'modeling'
 
 class Foo
-
   model :a, :b
-
 end
 
 class Bar < Foo
   def initialize a
-    super(a)
+    super
   end
 end
 
@@ -118,48 +146,38 @@ bar = Bar.new 1
 p bar  # => #<Bar:0x... @a=1, @b=nil>
 ```
 
-### 7. Modeled inheritance
+### 8. Inheritance & keyword arguments
 ```RUBY
 require 'modeling'
 
 class Foo
-
   model :a
-
 end
 
 class Bar < Foo
-
-  model :b
-
+  model :b, :<, keywords: true
 end
 
 bar = Bar.new a: 1, b: 2
-p bar  # => #<Bar:0x... @b=2, @a=1>
+p bar  # => #<Bar:0x... @a=1, @b=2>
 
-rabar = Bar.new 1, 2
-p rabar  # => #<Bar:0x... @b=1, @a=2>
+barbara = Bar.new 1, 2
+p barbara  # => #<Bar:0x... @a=2, @b=1>
 ```
 
-### 8. Explicit super initialization
+### 9. Explicit super initialization
 ```RUBY
 require 'modeling'
 
 class Foo
-
   model :a
-
 end
 
 class Bar < Foo
-
-  model :b do |init_super|
-    init_super.call a: @b
-  end
-
+  model :b, 'super(b)'
 end
 
-rabar = Bar.new 1
-p rabar  # => #<Bar:0x... @a=1, @b=1>
+bar = Bar.new 1
+p bar  # => #<Bar:0x... @b=1, @a=1>
 ```
 

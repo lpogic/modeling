@@ -1,11 +1,11 @@
 module Modeling
   class ModelField
-    def initialize name, instance_variable, writer, reader, nil_instance_variable
+    def initialize name, instance_variable, writer, reader, super_argument
       @name = name
       @instance_variable = instance_variable
       @writer = writer
       @reader = reader
-      @nil_instance_variable = nil_instance_variable
+      @super_argument = super_argument
     end
 
     attr :name
@@ -14,8 +14,8 @@ module Modeling
       @instance_variable
     end
 
-    def nil_instance_variable?
-      @nil_instance_variable
+    def super_argument?
+      @super_argument
     end
 
     def writer?
@@ -32,41 +32,33 @@ module Modeling
         when ModelField
           argument
         when Symbol, String
-          parse_model_field argument
+          form_symbol argument
         else
           raise Exception.new "Unsupported argument #{argument} of #{argument.class} class."
         end
       end
 
-      def parse_model_field argument
-        instance_variable = reader = writer = nil_instance_variable = false
-        name_start = (0...argument.length).each do |i|
-          case a = argument[i]
-          when "R" then reader = true
-          when "W" then writer = true
-          when "@" then instance_variable = true
-          when "N" then nil_instance_variable = true
-          when "_" then break i + 1
-          else
-            if a.upcase != a
-              break i
-            else raise Exception.new "Invalid model field '#{argument}' - unknown option '#{a}'"
-            end
-          end
-        end
-        name = case name_start
-        when 0
-          instance_variable = reader = writer = true
-          argument
-        when Integer
-          argument[name_start..]
+      def form_symbol symbol        
+        if symbol.start_with? "@"
+          instance_variable = true
+          reader = writer = super_argument = false
+          name = symbol[1..]
+        elsif symbol.end_with? "="
+          instance_variable = reader = writer = super_argument = false
+          name = symbol[...-1]
+        elsif symbol.end_with? "!"
+          super_argument = true
+          instance_variable = reader = writer = false
+          name = symbol[...-1]
         else
-          ''
+          super_argument = false
+          instance_variable = reader = writer = true
+          name = symbol
         end
-
-        raise Exception.new "Invalid model field '#{argument}' - field name is missing" if name == ''
-        raise Exception.new "Invalid model field #{argument} - field name '#{name}' is invalid" unless name =~ /\w+/
-        ModelField.new name.to_sym, instance_variable, writer, reader, nil_instance_variable
+        
+        raise Exception.new "Invalid model field '#{symbol}' - field name is empty" if name == ''
+        raise Exception.new "Invalid model field #{symbol} - field name '#{name}' is invalid" unless name =~ /\w+/
+        ModelField.new name.to_sym, instance_variable, writer, reader, super_argument
       end
     end
   end

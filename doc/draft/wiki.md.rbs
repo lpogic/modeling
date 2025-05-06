@@ -7,13 +7,17 @@ Installation
 gem install #{ gemspec.name }
 ```
 
-Usage
+Basic usage
 ---
-#{ sample.call "::model with initializer", "sample/a1.rb" }
-#{ sample.call "Enable modeling only for selected classes", "sample/a2.rb" }
-#{ sample.call "Modeling with symbols", "sample/a3.rb" }
-#{ sample.call "Alternative ways of modeling", "sample/a4.rb" }
-#{ sample.call "Mixed keyword and positional arguments", "sample/b1.rb" }
-#{ sample.call "Inheritance", "sample/b2.rb" }
-#{ sample.call "Modeled inheritance", "sample/b3.rb" }
+#{ sample.call "Comparison with traditional initialize", "sample/a0.rb" }
+#{ sample.call "Custom initialize body", "sample/a1.rb" }
+#{ sample.call "Enabling modeling locally", "sample/a2.rb" }
+#{ sample.call "Arguments encoding", "sample/a3.rb" }
+
+Advanced usage
+---
+#{ sample.call "Modeling inheriting classes", "sample/b0.rb" }
+#{ sample.call "Enabling keyword arguments", "sample/b1.rb" }
+#{ sample.call "Modeling inherited classes", "sample/b2.rb" }
+#{ sample.call "Inheritance & keyword arguments", "sample/b3.rb" }
 #{ sample.call "Explicit super initialization", "sample/b4.rb" }

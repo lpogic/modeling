@@ -1,9 +1,7 @@
 require 'modeling'
 
 class Foo
-
   model :a, :b
-
 end
 
 class Bar < Foo
