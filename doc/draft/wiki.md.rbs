@@ -1,6 +1,10 @@
 Welcome to the _#{ gemspec.name }_ documentation home page!
 ===
 
+Version: #{ gemspec.version }
+
+[Go to the project home page](https://github.com/lpogic/modeling/tree/#{ gemspec.version.to_s[/\d+\.\d+/] })
+
 Installation
 ---
 ```

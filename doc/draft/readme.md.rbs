@@ -1,13 +1,15 @@
-#{ gemspec.name }#{ " - #{ gemspec.summary }" if gemspec.summary }
+#{ gemspec.name } #{ "_#{ gemspec.summary }_" if gemspec.summary }
 ===
 
 #{ gemspec.description }
+
+Version: #{ gemspec.version }
 
 Basic sample
 ---
 #{ code.call "sample/a0.rb" }
 
-[More samples](https://github.com/lpogic/modeling/blob/main/doc/wiki/README.md)
+[More samples](https://github.com/lpogic/modeling/tree/#{ gemspec.version.to_s[/\d+\.\d+/] }/doc/wiki)
 
 Requirements
 ---

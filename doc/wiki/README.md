@@ -1,6 +1,10 @@
 Welcome to the _modeling_ documentation home page!
 ===
 
+Version: 0.2.0
+
+[Go to the project home page](https://github.com/lpogic/modeling/tree/0.2)
+
 Installation
 ---
 ```
